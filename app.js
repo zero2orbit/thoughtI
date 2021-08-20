@@ -6,7 +6,9 @@ const PORT = 5050
 app.use(express.json())
 
 app.get("/records", async (req, res, next) => {
-    let { page, size } = req.query;
+
+    try{
+        let { page, size } = req.query;
     page = parseInt(page)
     size = parseInt(size)
     if(!page){
@@ -19,18 +21,18 @@ app.get("/records", async (req, res, next) => {
 
     const start = (page - 1) * size
     const end = page * size
+
     let result = data.slice(start, end)
     const ids = result.map((item) => item.id)
     const Open = result.filter((item) => item.disposition == "open")
     let close = []
-    result.forEach((item) => {
-        
+    result.forEach((item) => {       
         if(item.disposition == "closed"){
             let obj = {}
             obj.disposition = item.disposition,
             obj.color = item.color
             close.push(obj)
-            console.log(close)
+          
         }
     })
 
@@ -44,6 +46,13 @@ app.get("/records", async (req, res, next) => {
     }
 
     res.status(200).json({result, ids, Open,close,  nextPage, previousPage})
+
+    }catch (e){
+
+        res.status(500).json({"status": "fai", "msg":`${e}`})
+
+    }
+    
 })
 
 
